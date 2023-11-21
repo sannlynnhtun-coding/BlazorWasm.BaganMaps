@@ -1,0 +1,73 @@
+﻿@page "/"
+@page "/{Id}"
+@using Newtonsoft.Json
+@implements IDisposable
+
+<PageTitle>Bagan Map</PageTitle>
+<MudLayout>
+    <MudAppBar Elevation="1" Dense="false" Color="Color.Dark">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@ToggleDrawer" />
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Custom.Brands.GitHub" Color="Color.Inherit" Link="https://github.com/sannlynnhtun-coding/BlazorWasm.Maps" Target="_blank" />
+    </MudAppBar>
+    <MudDrawer @bind-Open="@open" Elevation="1" Variant="DrawerVariant.Responsive">
+        <MudNavMenu>
+            <MudNavLink Match="NavLinkMatch.All" Href="/" Icon="@Icons.Material.Filled.LibraryBooks">Home</MudNavLink>
+            @if (_travelRoute is not null)
+            {
+                @foreach (var item in _travelRoute)
+                {
+                    string url = "/" + item.TravelRouteId;
+                    <MudNavLink Match="NavLinkMatch.All" Href="@url" Icon="@Icons.Material.Filled.LibraryBooks">@item.TravelRouteName</MudNavLink>
+                }
+            }
+        </MudNavMenu>
+    </MudDrawer>
+    <Panel IsOpen=@lightDismissPanelOpen
+           OnDismiss=@(() => lightDismissPanelOpen = !lightDismissPanelOpen)
+           Type=@((PanelType)Enum.Parse(typeof(PanelType), panelTypeSelected?.Key!))
+           Style="margin-top: 40px;"
+           CustomWidth=@customWidth
+           IsLightDismiss="true"
+           HeaderText="@(_head is null ? "" : (_head.PagodaMmName + " - " + _head.Id))">
+        <NavigationTemplate>
+        </NavigationTemplate>
+        <ChildContent>
+            <p>
+                @_detail.Description
+            </p>
+        </ChildContent>
+    </Panel>
+</MudLayout>
+<div id="map"></div>
+
+
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    bool lightDismissPanelOpen = false;
+
+    IDropdownOption? panelTypeSelected = new DropdownOption
+        {
+            Key = "Medium",
+            Text = "Medium",
+            ItemType = SelectableOptionMenuItemType.Normal
+        };
+
+    string customWidth = "500";
+
+    bool open = false;
+    Anchor anchor;
+
+    void OpenDrawer(Anchor anchor = Anchor.Start)
+    {
+        open = true;
+        this.anchor = anchor;
+    }
+
+    void ToggleDrawer()
+    {
+        open = !open;
+    }
+}
